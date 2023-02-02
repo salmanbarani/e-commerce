@@ -1,15 +1,53 @@
 from datetime import date
+from model import Batch, OrderLine
+
+BATCH_REF = 'batch-001'
+ORDER_REF = 'order-123'
 
 
-def sample_batch(ref="batch-001", sku="SMALL-TABLE", qty=20, eta=date.today()):
-    return Batch(ref, sku, qty, eta)
-
-
-def sample_line(ref='order-ref', sku='SMALL-TABLE', qty=2):
-    return OrderLine(ref, sku, qty)
+def make_batch_and_line(sku, batch_qty, line_qty):
+    return (
+        Batch(BATCH_REF, sku, batch_qty, eta=date.today()),
+        OrderLine(ORDER_REF, sku, line_qty)
+    )
 
 
 def test_allocating_to_a_batch_reduce_the_available_quantity():
-    batch, line = sample_batch(), sample_line()
+    batch, line = make_batch_and_line("BIG CHAIR", 20, 2)
+    batch.allocate(line)
+    assert batch.available_quantity == 18
+
+
+def test_can_allocate_if_available_greater_than_required():
+    batch, line = make_batch_and_line("BIG CHAIR", 20, 2)
+    assert batch.can_allocate(line)
+
+
+def test_cannot_allocate_if_available_smaller_than_required():
+    small_batch, large_line = make_batch_and_line("BIG CHAIR", 20, 25)
+    assert small_batch.can_allocate(large_line) is False
+
+
+def test_can_allocate_if_available_equal_to_required():
+    batch, line = make_batch_and_line("BIG CHAIR", 20, 20)
+    assert batch.can_allocate(line)
+
+
+def test_cannot_allocate_if_skus_do_not_match():
+    batch = Batch("batch-001", "UNCOMFORTABLE-CHAIR", 100, eta=None)
+    different_sku_line = OrderLine("order-123", "EXPENSIVE-TOASTER",
+                                   10)
+    assert batch.can_allocate(different_sku_line) is False
+
+
+def test_can_only_dealocate_allocated_lines():
+    batch, unallocated_line = make_batch_and_line("GAMING-CHAIR", 200, 20)
+    batch.deallocate(unallocated_line)
+    assert batch.available_quantity == 200
+
+
+def test_allocation_is_idempotent():
+    batch, line = make_batch_and_line("SHIP_TOY", 20, 2)
+    batch.allocate(line)
     batch.allocate(line)
     assert batch.available_quantity == 18
