@@ -33,6 +33,14 @@ class Batch:
     def available_quantity(self) -> int:
         return self._purchased_quantity - self.allocated_quantity
 
+    def __eq__(self, __o: object) -> bool:
+        if not isinstance(__o, self.__class__):
+            return False
+        return self.reference == __o.reference
+
+    def __hash__(self) -> int:
+        return hash(self.reference)
+
 
 @dataclass(frozen=True)
 class OrderLine:
