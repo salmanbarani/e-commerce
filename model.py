@@ -33,6 +33,13 @@ class Batch:
     def available_quantity(self) -> int:
         return self._purchased_quantity - self.allocated_quantity
 
+    def __gt__(self, __o: object) -> bool:
+        if self.eta is None:
+            return False
+        if __o.eta is None:
+            return True
+        return self.eta > __o.eta
+
     def __eq__(self, __o: object) -> bool:
         if not isinstance(__o, self.__class__):
             return False
@@ -47,3 +54,18 @@ class OrderLine:
     orderid: str
     sku: str
     qty: int
+
+
+def allocate(line: OrderLine, batches: Optional[Batch]):
+    try:
+        batch = next(
+            b for b in sorted(batches) if b.can_allocate(line)
+        )
+        batch.allocate(line)
+        return batch.reference
+    except StopIteration:
+        raise OutOfStock(f"Out of stock for sku {line.sku}")
+
+
+class OutOfStock(Exception):
+    pass
