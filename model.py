@@ -1,5 +1,5 @@
-from datetime import date
 from dataclasses import dataclass
+from datetime import date
 from typing import Optional
 
 
@@ -12,8 +12,7 @@ class Batch:
         self._allocations = set()
 
     def can_allocate(self, line):
-        if self.available_quantity >= line.qty and \
-                self.sku == line.sku:
+        if self.available_quantity >= line.qty and self.sku == line.sku:
             return True
         return False
 
@@ -49,7 +48,7 @@ class Batch:
         return hash(self.reference)
 
 
-@dataclass(frozen=True)
+@dataclass(unsafe_hash=True)
 class OrderLine:
     orderid: str
     sku: str
@@ -58,9 +57,7 @@ class OrderLine:
 
 def allocate(line: OrderLine, batches: Optional[Batch]):
     try:
-        batch = next(
-            b for b in sorted(batches) if b.can_allocate(line)
-        )
+        batch = next(b for b in sorted(batches) if b.can_allocate(line))
         batch.allocate(line)
         return batch.reference
     except StopIteration:

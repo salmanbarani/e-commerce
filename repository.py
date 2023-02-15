@@ -1,4 +1,5 @@
 import abc
+
 import model
 
 
@@ -34,9 +35,7 @@ class FakeRepository(AbstractRepository):
         self._batches.add(batch)
 
     def get(self, reference):
-        return next(
-            b for b in self._batches if reference == b.reference
-        )
+        return next(b for b in self._batches if reference == b.reference)
 
     def list(self):
         return list(self._batches)
