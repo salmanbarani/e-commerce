@@ -2,7 +2,7 @@ from datetime import date, datetime, timedelta
 
 import pytest
 
-from model import Batch, OrderLine, OutOfStock, allocate
+from src.allocation.domain.model import Batch, OrderLine, OutOfStock, allocate
 
 BATCH_REF = "batch-001"
 ORDER_REF = "order-123"
@@ -86,8 +86,10 @@ def test_prefers_earlier_batches():
 
 
 def test_returns_allocated_batch_ref():
-    in_stock_batch = Batch("in-stock-batch-ref", "HIGHBROW-POSTER", 100, eta=None)
-    shipment_batch = Batch("shipment-batch-ref", "HIGHBROW-POSTER", 100, eta=TOMORROW)
+    in_stock_batch = Batch("in-stock-batch-ref",
+                           "HIGHBROW-POSTER", 100, eta=None)
+    shipment_batch = Batch("shipment-batch-ref",
+                           "HIGHBROW-POSTER", 100, eta=TOMORROW)
     line = OrderLine("oref", "HIGHBROW-POSTER", 10)
 
     allocation = allocate(line, [in_stock_batch, shipment_batch])
