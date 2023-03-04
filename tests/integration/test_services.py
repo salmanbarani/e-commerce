@@ -3,7 +3,7 @@ from allocation.adapters import repository
 from allocation.service_layer import services
 
 
-class FakeSession():
+class FakeSession:
     committed = False
 
     def commit(self):
@@ -20,8 +20,8 @@ def test_returns_allocation():
 
 
 def test_commits():
-    line = model.OrderLine('o1', 'OMINOUS-MIRROR', 10)
-    batch = model.Batch('b1', 'OMINOUS-MIRROR', 100, eta=None)
+    line = model.OrderLine("o1", "OMINOUS-MIRROR", 10)
+    batch = model.Batch("b1", "OMINOUS-MIRROR", 100, eta=None)
     repo = repository.FakeRepository([batch])
     session = FakeSession()
 

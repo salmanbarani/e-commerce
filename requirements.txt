@@ -1,1 +1,10 @@
-SQLAlchemy==1.4.31
+# app
+sqlalchemy
+flask
+psycopg2-binary
+
+# tests
+pytest
+pytest-icdiff
+mypy
+requests
