@@ -1,6 +1,5 @@
 import abc
-
-import src.allocation.domain.model as model
+from allocation.domain import model
 
 
 class AbstractRepository(abc.ABC):
@@ -14,7 +13,7 @@ class AbstractRepository(abc.ABC):
 
 
 class SqlAlchemyRepository(AbstractRepository):
-    def __init__(self, session) -> None:
+    def __init__(self, session):
         self.session = session
 
     def add(self, batch):

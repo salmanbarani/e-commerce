@@ -1,6 +1,6 @@
-from domain.model import OrderLine
-from adapters.repository import AbstractRepository
-from domain import model
+from allocation.domain.model import OrderLine
+from allocation.adapters.repository import AbstractRepository
+from allocation.domain import model
 
 
 class InvalidSku(Exception):
@@ -18,3 +18,10 @@ def allocate(line: OrderLine, repo: AbstractRepository, session) -> str:
     batchref = model.allocate(line, batches)
     session.commit()
     return batchref
+
+
+def deallocate(line: OrderLine, batchrf, repo: AbstractRepository, session) -> str:
+    batches = repo.get(batchrf)
+    batches.deallocate(line)
+    session.commit()
+    return True

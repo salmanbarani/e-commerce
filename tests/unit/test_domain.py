@@ -2,7 +2,7 @@ from datetime import date, datetime, timedelta
 
 import pytest
 
-from src.allocation.domain.model import Batch, OrderLine, OutOfStock, allocate
+from allocation.domain.model import Batch, OrderLine, OutOfStock, allocate
 
 BATCH_REF = "batch-001"
 ORDER_REF = "order-123"
