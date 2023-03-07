@@ -17,6 +17,12 @@ class FakeRepository(repository.AbstractRepository):
     def list(self):
         return list(self._batches)
 
+    @staticmethod
+    def for_batch(ref, sku, qty, eta=None):
+        return FakeRepository([
+            model.Batch(ref, sku, qty, eta),
+        ])
+
 
 class FakeSession:
     committed = False
@@ -26,12 +32,11 @@ class FakeSession:
 
 
 def test_returns_allocation():
-    line = model.OrderLine("o1", "COMPLICATED-LAMP", 10)
-    batch = model.Batch("b1", "COMPLICATED-LAMP", 100, eta=None)
-    repo = FakeRepository([batch])
-
-    result = services.allocate(line, repo, FakeSession())
-    assert result == "b1"
+    repo = FakeRepository.for_batch(
+        "batch1", "COMPLICATED-LAMP", 100, eta=None)
+    result = services.allocate("o1", "COMPLICATED-LAMP", 10, repo,
+                               FakeSession())
+    assert result == "batch1"
 
 
 def test_error_for_invalid_sku():
