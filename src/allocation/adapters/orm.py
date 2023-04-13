@@ -33,11 +33,25 @@ allocations = Table(
     Column("batch_id", ForeignKey("batches.id")),
 )
 
+products = Table(
+    "products",
+    mapper_registry.metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("sku", String(255)),
+)
+product_batches = Table(
+    "product_batches",
+    mapper_registry.metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("product_id", ForeignKey("products.id")),
+    Column("batch_id", ForeignKey("batches.id")),
+)
+
 
 def start_mappers():
     lines_mapper = mapper_registry.map_imperatively(
         model.OrderLine, order_lines)
-    mapper_registry.map_imperatively(
+    batches_mapper = mapper_registry.map_imperatively(
         model.Batch,
         batches,
         properties={
@@ -47,4 +61,16 @@ def start_mappers():
                 collection_class=set,
             )
         },
+    )
+
+    mapper_registry.map_imperatively(
+        model.Product,
+        products,
+        properties={
+            "_batches": relationship(
+                batches_mapper,
+                secondary=product_batches,
+                collection_class=set,
+            )
+        }
     )

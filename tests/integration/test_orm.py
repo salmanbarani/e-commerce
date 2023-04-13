@@ -90,3 +90,43 @@ def test_retrieving_allocations(session):
     batch = session.query(model.Batch).one()
 
     assert batch._allocations == {model.OrderLine("order1", "sku1", 12)}
+
+
+def test_saving_batches(session):
+    product = model.Product("sku1", [])
+    product.batches.append(model.Batch("batch1", "sku1", 100, eta=None))
+    session.add(product)
+    session.commit()
+
+    result = session.execute(
+        text('SELECT sku FROM "products"')
+    )
+    assert list(result) == [("sku1",)]
+
+
+def test_retrieving_batches(session):
+    product = model.Product("sku1", [])
+    product = model.Product("sku2", [])
+
+    product.batches.append(model.Batch("batch1", "sku1", 100, eta=None))
+    product.batches.append(model.Batch("batch2", "sku1", 100, eta=None))
+    product.batches.append(model.Batch("batch3", "sku2", 100, eta=None))
+    product.batches.append(model.Batch("batch4", "sku2", 100, eta=None))
+
+    session.add(product)
+    session.commit()
+
+    # TODO: continue here
+
+    # [[bid]] = session.execute(
+    #     text("SELECT id FROM batches WHERE reference=:ref AND sku=:sku"),
+    #     dict(ref="batch1", sku="sku1"),
+    # )
+    # session.execute(
+    #     text("INSERT INTO allocations (orderline_id, batch_id) VALUES (:olid, :bid)"),
+    #     dict(olid=olid, bid=bid),
+    # )
+
+    # batch = session.query(model.Batch).one()
+
+    # assert batch._allocations == {model.OrderLine("order1", "sku1", 12)}
