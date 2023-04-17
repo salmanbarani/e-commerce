@@ -1,44 +1,38 @@
-# import pytest
-# from allocation.domain import model
-# from allocation.service_layer import unit_of_work
-# from sqlalchemy import text
+import pytest
+from allocation.domain import model
+from allocation.service_layer import unit_of_work
+from sqlalchemy import text
 
 
-# def insert_batch(session, ref, sku, qty, eta):
-#     session.execute(
-#         text("INSERT INTO batches (reference, sku, _purchased_quantity, eta)"
-#              " VALUES (:ref, :sku, :qty, :eta)"),
-#         dict(ref=ref, sku=sku, qty=qty, eta=eta),
-#     )
+def insert_product(session, sku):
+    session.execute(
+        text("INSERT INTO products (sku)"
+             " VALUES (:sku)"),
+        dict(sku=sku),
+    )
 
 
-# def get_allocated_batch_ref(session, orderid, sku):
-#     [[orderlineid]] = session.execute(
-#         text("SELECT id FROM order_lines WHERE orderid=:orderid AND sku=:sku"),
-#         dict(orderid=orderid, sku=sku),
-#     )
-#     [[batchref]] = session.execute(
-#         text("SELECT b.reference FROM allocations JOIN batches AS b ON batch_id = b.id"
-#              " WHERE orderline_id=:orderlineid"),
-#         dict(orderlineid=orderlineid),
-#     )
-#     return batchref
+def test_uow_can_retrieve_product(session_factory):
+    session = session_factory()
+    insert_product(session, "sku_")
+    session.commit()
+
+    uow = unit_of_work.SqlAlchemyUnitOfWork(session_factory)
+    with uow:
+        product = uow.products.get(sku="sku_")
+        assert product.sku == "sku_"
 
 
-# def test_uow_can_retrieve_a_batch_and_allocate_to_it(session_factory):
-#     session = session_factory()
-#     insert_batch(session, "batch1", "HIPSTER-WORKBENCH", 100, None)
-#     session.commit()
+def test_uow_can_save_product(session_factory):
+    session = session_factory()
+    uow = unit_of_work.SqlAlchemyUnitOfWork(session_factory)
+    with uow:
+        uow.products.add(model.Product("sku_to_be_saved", []))
+        uow.commit()
 
-#     uow = unit_of_work.SqlAlchemyUnitOfWork(session_factory)
-#     with uow:
-#         batch = uow.batches.get(reference="batch1")
-#         line = model.OrderLine("o1", "HIPSTER-WORKBENCH", 10)
-#         batch.allocate(line)
-#         uow.commit()
-
-#     batchref = get_allocated_batch_ref(session, "o1", "HIPSTER-WORKBENCH")
-#     assert batchref == "batch1"
+    product = session.query(model.Product).filter_by(
+        sku="sku_to_be_saved").one()
+    assert product.sku == "sku_to_be_saved"
 
 
 # def test_rolls_back_uncommitted_work_by_default(session_factory):

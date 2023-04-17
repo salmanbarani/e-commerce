@@ -105,28 +105,21 @@ def test_saving_batches(session):
 
 
 def test_retrieving_batches(session):
-    product = model.Product("sku1", [])
-    product = model.Product("sku2", [])
+    product1 = model.Product("sku1", [])
+    product2 = model.Product("sku2", [])
 
-    product.batches.append(model.Batch("batch1", "sku1", 100, eta=None))
-    product.batches.append(model.Batch("batch2", "sku1", 100, eta=None))
-    product.batches.append(model.Batch("batch3", "sku2", 100, eta=None))
-    product.batches.append(model.Batch("batch4", "sku2", 100, eta=None))
+    product1.batches.append(model.Batch("batch1", "sku1", 100, eta=None))
+    product1.batches.append(model.Batch("batch2", "sku1", 100, eta=None))
+    product2.batches.append(model.Batch("batch3", "sku2", 100, eta=None))
+    product2.batches.append(model.Batch("batch4", "sku2", 100, eta=None))
 
-    session.add(product)
+    session.add(product1)
+    session.add(product2)
     session.commit()
 
-    # TODO: continue here
-
-    # [[bid]] = session.execute(
-    #     text("SELECT id FROM batches WHERE reference=:ref AND sku=:sku"),
-    #     dict(ref="batch1", sku="sku1"),
-    # )
-    # session.execute(
-    #     text("INSERT INTO allocations (orderline_id, batch_id) VALUES (:olid, :bid)"),
-    #     dict(olid=olid, bid=bid),
-    # )
-
-    # batch = session.query(model.Batch).one()
-
-    # assert batch._allocations == {model.OrderLine("order1", "sku1", 12)}
+    product_from_sql = session.query(
+        model.Product).filter_by(sku="sku1").one()
+    assert product_from_sql.sku == "sku1"
+    assert len(product_from_sql.batches) == 2
+    for batch in product_from_sql.batches:
+        assert getattr(batch, 'reference') in ("batch1", "batch2")

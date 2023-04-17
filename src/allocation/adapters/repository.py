@@ -22,6 +22,17 @@ class AbstractProductRepository(abc.ABC):
         raise NotImplementedError
 
 
+class ProductRepository(AbstractProductRepository):
+    def __init__(self, session) -> None:
+        self.session = session
+
+    def add(self, product):
+        self.session.add(product)
+
+    def get(self, sku):
+        return self.session.query(model.Product).filter_by(sku=sku).one()
+
+
 class SqlAlchemyRepository(AbstractRepository):
     def __init__(self, session):
         self.session = session
