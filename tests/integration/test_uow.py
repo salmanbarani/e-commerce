@@ -35,26 +35,26 @@ def test_uow_can_save_product(session_factory):
     assert product.sku == "sku_to_be_saved"
 
 
-# def test_rolls_back_uncommitted_work_by_default(session_factory):
-#     uow = unit_of_work.SqlAlchemyUnitOfWork(session_factory)
-#     with uow:
-#         insert_batch(uow.session, "batch1", "MEDIUM-PLINTH", 100, None)
+def test_rolls_back_uncommitted_work_by_default(session_factory):
+    uow = unit_of_work.SqlAlchemyUnitOfWork(session_factory)
+    with uow:
+        insert_product(uow.session, "product_sku")
 
-#     new_session = session_factory()
-#     rows = list(new_session.execute(text('SELECT * FROM "batches"')))
-#     assert rows == []
+    new_session = session_factory()
+    rows = list(new_session.execute(text('SELECT * FROM "products"')))
+    assert rows == []
 
 
-# def test_rolls_back_on_error(session_factory):
-#     class MyException(Exception):
-#         pass
+def test_rolls_back_on_error(session_factory):
+    class MyException(Exception):
+        pass
 
-#     uow = unit_of_work.SqlAlchemyUnitOfWork(session_factory)
-#     with pytest.raises(MyException):
-#         with uow:
-#             insert_batch(uow.session, "batch1", "LARGE-FORK", 100, None)
-#             raise MyException()
+    uow = unit_of_work.SqlAlchemyUnitOfWork(session_factory)
+    with pytest.raises(MyException):
+        with uow:
+            insert_product(uow.session, "product_sku")
+            raise MyException()
 
-#     new_session = session_factory()
-#     rows = list(new_session.execute(text('SELECT * FROM "batches"')))
-#     assert rows == []
+    new_session = session_factory()
+    rows = list(new_session.execute(text('SELECT * FROM "products"')))
+    assert rows == []
