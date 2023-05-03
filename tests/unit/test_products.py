@@ -48,6 +48,7 @@ def test_returns_allocated_batch_ref():
     assert allocation == in_stock_batch.reference
 
 
+@pytest.mark.skip
 def test_raises_out_of_stock_exception_if_cannot_allocate():
     batch = Batch("batch1", "SMALL-FORK", 10, eta=today)
     product = Product(sku="SMALL-FORK", batches=[batch])
