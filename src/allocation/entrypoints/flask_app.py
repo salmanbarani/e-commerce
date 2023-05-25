@@ -16,11 +16,11 @@ def add_batch():
     eta = request.json["eta"]
     if eta is not None:
         eta = datetime.fromisoformat(eta).date()
-    handlers.add_batch(
+    handlers.add_batch(events.BatchCreated(
         request.json["ref"],
         request.json["sku"],
         request.json["qty"],
-        eta,
+        eta),
         unit_of_work.SqlAlchemyUnitOfWork(),
     )
     return "OK", 201
