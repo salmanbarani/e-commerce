@@ -1,9 +1,7 @@
 from datetime import datetime
 from flask import Flask, request
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
-from allocation.domain import model, events
+from allocation.domain import model, commands
 from allocation.adapters import orm
 from allocation.service_layer import handlers, unit_of_work, messagebus
 
@@ -16,7 +14,7 @@ def add_batch():
     eta = request.json["eta"]
     if eta is not None:
         eta = datetime.fromisoformat(eta).date()
-    handlers.add_batch(events.BatchCreated(
+    handlers.add_batch(commands.CreateBatch(
         request.json["ref"],
         request.json["sku"],
         request.json["qty"],
@@ -29,7 +27,7 @@ def add_batch():
 @app.route("/allocate", methods=["POST"])
 def allocate_endpoint():
     try:
-        event = events.AllocationRequired(
+        event = commands.Allocate(
             request.json['orderid'], request.json['sku'],
             request.json['qty'],
         )
