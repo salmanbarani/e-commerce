@@ -87,6 +87,13 @@ class Product:
                          if b.can_allocate(line))
             batch.allocate(line)
             self.version_number += 1
+            self.events.append(
+                events.Allocated(
+                    orderid=line.orderid,
+                    sku=line.sku,
+                    qty=line.qty,
+                    batchref=batch.reference
+                ))
             return batch.reference
         except StopIteration:
             # raise OutOfStock(f"{line.sku} out of stock for sku")

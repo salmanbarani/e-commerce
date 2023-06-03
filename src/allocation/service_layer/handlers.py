@@ -1,7 +1,10 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING
 from allocation.domain import model, events, commands
 from allocation.domain.model import OrderLine
-from . import unit_of_work
+from allocation.adapters import redis_eventpublisher
+if TYPE_CHECKING:
+    from . import unit_of_work
 
 
 class InvalidSku(Exception):
@@ -48,3 +51,10 @@ def send_out_of_stock_notification(
     event: events.OutOfStock, uow: unit_of_work.AbstractUnitOfWork,
 ):
     print("SENDING EMAIL")  # replace with email.send(...)
+
+
+def publish_allocated_event(
+    event: events.Allocated,
+    uow: unit_of_work.AbstractUnitOfWork,
+):
+    redis_eventpublisher.publish("line_allocated", event)

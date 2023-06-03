@@ -38,8 +38,8 @@ def handle_event(
             logger.debug("handing event %s with handler %s", event, handler)
             handler(event, uow=uow)
             queue.extend(uow.collect_new_events())
-        except Exception:
-            logger.exception("Exception handing event  %s", event)
+        except Exception as e:
+            logger.exception("Exception handing event  %s {e}", event)
             continue
 
 
@@ -71,6 +71,7 @@ def send_out_of_stock_notification(event: events.OutOfStock):
 
 
 EVENT_HANDLERS = {
+    events.Allocated: [handlers.publish_allocated_event],
     events.BatchCreated: [handlers.add_batch],
     events.BatchQuantityChanged: [handlers.change_batch_quantity],
     events.AllocationRequired: [handlers.allocate],
