@@ -1,8 +1,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from allocation.domain import model, events, commands
-from allocation.domain.model import OrderLine
 from allocation.adapters import redis_eventpublisher
+
 if TYPE_CHECKING:
     from . import unit_of_work
 
@@ -30,14 +30,14 @@ def allocate(
     cmd: commands.Allocate,
     uow: unit_of_work.AbstractUnitOfWork,
 ) -> str:
-    line = OrderLine(cmd.order_id, cmd.sku, cmd.qty)
+    line = model.OrderLine(cmd.order_id, cmd.sku, cmd.qty)
     with uow:
         product = uow.products.get(sku=line.sku)
         if product is None:
             raise InvalidSku(f'Invalid sku {line.sku}')
         batchref = product.allocate(line)
         uow.commit()
-    return batchref
+        return batchref
 
 
 def change_batch_quantity(cmd: commands.ChangeBatchQuantity,
@@ -45,6 +45,7 @@ def change_batch_quantity(cmd: commands.ChangeBatchQuantity,
     with uow:
         product = uow.products.get_by_batchref(batchref=cmd.ref)
         product.change_batch_quantity(ref=cmd.ref, qty=cmd.qty)
+        uow.commit()
 
 
 def send_out_of_stock_notification(

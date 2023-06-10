@@ -27,11 +27,11 @@ def add_batch():
 @app.route("/allocate", methods=["POST"])
 def allocate_endpoint():
     try:
-        event = commands.Allocate(
+        cmd = commands.Allocate(
             request.json['orderid'], request.json['sku'],
             request.json['qty'],
         )
-        results = messagebus.handle(event, unit_of_work.SqlAlchemyUnitOfWork())
+        results = messagebus.handle(cmd, unit_of_work.SqlAlchemyUnitOfWork())
         batchref = results.pop(0)
     except (model.OutOfStock, handlers.InvalidSku) as e:
         return {"message": str(e)}, 400

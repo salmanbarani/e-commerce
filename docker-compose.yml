@@ -19,16 +19,13 @@ services:
       - ./tests:/tests
     entrypoint:
       - python
-      - allocation/entrypoints/redis_eventconsumer.py
+      - /src/allocation/entrypoints/redis_eventconsumer.py
 
 
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: allocation-image
     depends_on:
       - redis_pubsub
-      - postgres
     environment:
       - DB_HOST=postgres
       - DB_PASSWORD=abc123
