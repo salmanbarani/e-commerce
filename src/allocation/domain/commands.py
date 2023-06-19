@@ -1,10 +1,18 @@
-from dataclasses import dataclass
+# pylint: disable=too-few-public-methods
 from datetime import date
 from typing import Optional
+from dataclasses import dataclass
 
 
 class Command:
     pass
+
+
+@dataclass
+class Allocate(Command):
+    orderid: str
+    sku: str
+    qty: int
 
 
 @dataclass
@@ -13,13 +21,6 @@ class CreateBatch(Command):
     sku: str
     qty: int
     eta: Optional[date] = None
-
-
-@dataclass
-class Allocate(Command):
-    order_id: str
-    sku: str
-    qty: str
 
 
 @dataclass

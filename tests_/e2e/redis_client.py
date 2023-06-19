@@ -7,8 +7,9 @@ r = redis.Redis(**config.get_redis_host_and_port())
 
 
 def subscribe_to(channel):
-    pubsub = r.pubsub()
+    pubsub = r.pubsub()  # pubsub client
     pubsub.subscribe(channel)
+    # get message to make sure pubusb si working
     confirmation = pubsub.get_message(timeout=3)
     assert confirmation["type"] == "subscribe"
     return pubsub

@@ -12,12 +12,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, clear_mappers
 from tenacity import retry, stop_after_delay
 
-from sqlalchemy.orm import registry
-from allocation.adapters.orm import start_mappers
+from allocation.adapters.orm import mapper_registry, start_mappers
 from allocation import config
-
-mapper_registry = registry()
-
 
 pytest.register_assert_rewrite("tests.e2e.api_client")
 

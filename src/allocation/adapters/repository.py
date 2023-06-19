@@ -1,12 +1,12 @@
 import abc
+from typing import Set
+from allocation.adapters import orm
 from allocation.domain import model
-from . import orm
 
 
 class AbstractRepository(abc.ABC):
-
-    def __init__(self) -> None:
-        self.seen = set()
+    def __init__(self):
+        self.seen = set()  # type: Set[model.Product]
 
     def add(self, product: model.Product):
         self._add(product)
@@ -48,10 +48,12 @@ class SqlAlchemyRepository(AbstractRepository):
     def _get(self, sku):
         return self.session.query(model.Product).filter_by(sku=sku).first()
 
-    def _get_by_batchref(self, batchref) -> model.Product:
-        return self.session.query(model.Product).join(model.Batch).filter(
-            orm.batches.c.reference == batchref,
-        ).first()
-
-    def list(self):
-        return self.session.query(model.Product).all()
+    def _get_by_batchref(self, batchref):
+        return (
+            self.session.query(model.Product)
+            .join(model.Batch)
+            .filter(
+                orm.batches.c.reference == batchref,
+            )
+            .first()
+        )

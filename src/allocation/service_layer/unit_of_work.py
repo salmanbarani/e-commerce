@@ -1,15 +1,17 @@
+# pylint: disable=attribute-defined-outside-init
 from __future__ import annotations
 import abc
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import Session
 
+
 from allocation import config
 from allocation.adapters import repository
 
 
 class AbstractUnitOfWork(abc.ABC):
-    products = repository.AbstractRepository
+    products: repository.AbstractRepository
 
     def __enter__(self) -> AbstractUnitOfWork:
         return self
@@ -47,7 +49,7 @@ class SqlAlchemyUnitOfWork(AbstractUnitOfWork):
         self.session_factory = session_factory
 
     def __enter__(self):
-        self.session = self.session_factory()
+        self.session = self.session_factory()  # type: Session
         self.products = repository.SqlAlchemyRepository(self.session)
         return super().__enter__()
 

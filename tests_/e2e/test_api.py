@@ -1,6 +1,6 @@
 import pytest
-from ..random_refs import random_batchref, random_orderid, random_sku
-from . import api_client
+from tests_.random_refs import random_sku, random_batchref, random_orderid
+from tests_.e2e import api_client
 
 
 @pytest.mark.usefixtures("postgres_db")
@@ -15,9 +15,11 @@ def test_happy_path_returns_202_and_batch_is_allocated():
     api_client.post_to_add_batch(earlybatch, sku, 100, "2011-01-01")
     api_client.post_to_add_batch(otherbatch, othersku, 100, None)
 
+    # allocation should be applied and return 202
     r = api_client.post_to_allocate(orderid, sku, qty=3)
     assert r.status_code == 202
 
+    # use different endpoint to make sure allocation was applied
     r = api_client.get_allocation(orderid)
     assert r.ok
     assert r.json() == [
