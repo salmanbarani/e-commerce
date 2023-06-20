@@ -14,25 +14,29 @@ pytestmark = pytest.mark.usefixtures("mappers")
 
 
 def insert_batch(session, ref, sku, qty, eta, product_version=1):
-    session.execute(text(
-        "INSERT INTO products (sku, version_number) VALUES (:sku, :version)"),
+    session.execute(
+        text("INSERT INTO products (sku, version_number) VALUES (:sku, :version)"),
         dict(sku=sku, version=product_version),
     )
-    session.execute(text(
-        "INSERT INTO batches (reference, sku, _purchased_quantity, eta)"
-        " VALUES (:ref, :sku, :qty, :eta)"),
+    session.execute(
+        text(
+            "INSERT INTO batches (reference, sku, _purchased_quantity, eta)"
+            " VALUES (:ref, :sku, :qty, :eta)"
+        ),
         dict(ref=ref, sku=sku, qty=qty, eta=eta),
     )
 
 
 def get_allocated_batch_ref(session, orderid, sku):
-    [[orderlineid]] = session.execute( text(
-        "SELECT id FROM order_lines WHERE orderid=:orderid AND sku=:sku"),
+    [[orderlineid]] = session.execute(
+        text("SELECT id FROM order_lines WHERE orderid=:orderid AND sku=:sku"),
         dict(orderid=orderid, sku=sku),
     )
-    [[batchref]] = session.execute( text(
-        "SELECT b.reference FROM allocations JOIN batches AS b ON batch_id = b.id"
-        " WHERE orderline_id=:orderlineid"),
+    [[batchref]] = session.execute(
+        text(
+            "SELECT b.reference FROM allocations JOIN batches AS b ON batch_id = b.id"
+            " WHERE orderline_id=:orderlineid"
+        ),
         dict(orderlineid=orderlineid),
     )
     return batchref
@@ -113,19 +117,21 @@ def test_concurrent_updates_to_version_are_not_allowed(postgres_session_factory)
     thread1.join()
     thread2.join()
 
-    [[version]] = session.execute( text(
-        "SELECT version_number FROM products WHERE sku=:sku"),
+    [[version]] = session.execute(
+        text("SELECT version_number FROM products WHERE sku=:sku"),
         dict(sku=sku),
     )
     assert version == 2
     [exception] = exceptions
     assert "could not serialize access due to concurrent update" in str(exception)
 
-    orders = session.execute( text(
-        "SELECT orderid FROM allocations"
-        " JOIN batches ON allocations.batch_id = batches.id"
-        " JOIN order_lines ON allocations.orderline_id = order_lines.id"
-        " WHERE order_lines.sku=:sku"),
+    orders = session.execute(
+        text(
+            "SELECT orderid FROM allocations"
+            " JOIN batches ON allocations.batch_id = batches.id"
+            " JOIN order_lines ON allocations.orderline_id = order_lines.id"
+            " WHERE order_lines.sku=:sku"
+        ),
         dict(sku=sku),
     )
     assert orders.rowcount == 1

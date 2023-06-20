@@ -24,8 +24,7 @@ def bootstrap(
     dependencies = {"uow": uow, "notifications": notifications, "publish": publish}
     injected_event_handlers = {
         event_type: [
-            inject_dependencies(handler, dependencies)
-            for handler in event_handlers
+            inject_dependencies(handler, dependencies) for handler in event_handlers
         ]
         for event_type, event_handlers in handlers.EVENT_HANDLERS.items()
     }

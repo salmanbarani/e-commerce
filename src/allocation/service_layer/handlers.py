@@ -84,11 +84,13 @@ def add_allocation_to_read_model(
     uow: unit_of_work.SqlAlchemyUnitOfWork,
 ):
     with uow:
-        uow.session.execute( text(
-            """
+        uow.session.execute(
+            text(
+                """
             INSERT INTO allocations_view (orderid, sku, batchref)
             VALUES (:orderid, :sku, :batchref)
-            """),
+            """
+            ),
             dict(orderid=event.orderid, sku=event.sku, batchref=event.batchref),
         )
         uow.commit()
@@ -99,11 +101,13 @@ def remove_allocation_from_read_model(
     uow: unit_of_work.SqlAlchemyUnitOfWork,
 ):
     with uow:
-        uow.session.execute( text(
-            """
+        uow.session.execute(
+            text(
+                """
             DELETE FROM allocations_view
             WHERE orderid = :orderid AND sku = :sku
-            """),
+            """
+            ),
             dict(orderid=event.orderid, sku=event.sku),
         )
         uow.commit()
