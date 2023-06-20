@@ -1,6 +1,7 @@
 import logging
 from sqlalchemy import (
     Table,
+    MetaData,
     Column,
     Integer,
     String,
@@ -8,12 +9,14 @@ from sqlalchemy import (
     ForeignKey,
     event,
 )
-from sqlalchemy.orm import mapper, relationship, registry
+from sqlalchemy.orm import relationship, registry
+
 from allocation.domain import model
 
 logger = logging.getLogger(__name__)
 
 metadata = registry().metadata
+mapper = registry().map_imperatively
 
 order_lines = Table(
     "order_lines",

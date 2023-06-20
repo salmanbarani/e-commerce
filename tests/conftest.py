@@ -1,4 +1,3 @@
-
 # pylint: disable=redefined-outer-name
 import shutil
 import subprocess
@@ -12,26 +11,22 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, clear_mappers
 from tenacity import retry, stop_after_delay
 
-from sqlalchemy.orm import registry
-from allocation.adapters.orm import start_mappers
+from allocation.adapters.orm import metadata, start_mappers
 from allocation import config
-
-mapper_registry = registry()
-
 
 pytest.register_assert_rewrite("tests.e2e.api_client")
 
 
 @pytest.fixture
-def in_memory_db():
+def in_memory_sqlite_db():
     engine = create_engine("sqlite:///:memory:")
-    mapper_registry.metadata.create_all(engine)
+    metadata.create_all(engine)
     return engine
 
 
 @pytest.fixture
-def sqlite_session_factory(in_memory_db):
-    yield sessionmaker(bind=in_memory_db)
+def sqlite_session_factory(in_memory_sqlite_db):
+    yield sessionmaker(bind=in_memory_sqlite_db)
 
 
 @pytest.fixture
@@ -59,10 +54,9 @@ def wait_for_redis_to_come_up():
 
 @pytest.fixture(scope="session")
 def postgres_db():
-    engine = create_engine(config.get_postgres_uri(),
-                           isolation_level="SERIALIZABLE")
+    engine = create_engine(config.get_postgres_uri(), isolation_level="SERIALIZABLE")
     wait_for_postgres_to_come_up(engine)
-    mapper_registry.metadata.create_all(engine)
+    metadata.create_all(engine)
     return engine
 
 
@@ -85,12 +79,11 @@ def restart_api():
 
 @pytest.fixture
 def restart_redis_pubsub():
-    """restart the pubsub if not running in container"""
     wait_for_redis_to_come_up()
     if not shutil.which("docker-compose"):
         print("skipping restart, assumes running in container")
         return
     subprocess.run(
         ["docker-compose", "restart", "-t", "0", "redis_pubsub"],
-        check=True,  # raise and error if not restarted.
+        check=True,
     )
