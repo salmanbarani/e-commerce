@@ -8,11 +8,11 @@ import pytest
 import redis
 import requests
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, clear_mappers
+from sqlalchemy.orm import clear_mappers, sessionmaker
 from tenacity import retry, stop_after_delay
 
-from allocation.adapters.orm import metadata, start_mappers
 from allocation import config
+from allocation.adapters.orm import metadata, start_mappers
 
 pytest.register_assert_rewrite("tests.e2e.api_client")
 

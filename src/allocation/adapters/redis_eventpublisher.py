@@ -1,6 +1,7 @@
 import json
 import logging
 from dataclasses import asdict
+
 import redis
 
 from allocation import config

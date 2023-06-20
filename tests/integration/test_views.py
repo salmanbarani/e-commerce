@@ -1,8 +1,10 @@
 # pylint: disable=redefined-outer-name
 from datetime import date
-from sqlalchemy.orm import clear_mappers
 from unittest import mock
+
 import pytest
+from sqlalchemy.orm import clear_mappers
+
 from allocation import bootstrap, views
 from allocation.domain import commands
 from allocation.service_layer import unit_of_work

@@ -4,11 +4,14 @@ import time
 import traceback
 from typing import List
 from unittest.mock import Mock
+
 import pytest
+from sqlalchemy import text
+
 from allocation.domain import model
 from allocation.service_layer import unit_of_work
-from ..random_refs import random_sku, random_batchref, random_orderid
-from sqlalchemy import text
+
+from ..random_refs import random_batchref, random_orderid, random_sku
 
 pytestmark = pytest.mark.usefixtures("mappers")
 

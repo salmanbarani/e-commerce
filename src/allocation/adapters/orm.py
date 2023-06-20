@@ -1,15 +1,8 @@
 import logging
-from sqlalchemy import (
-    Table,
-    MetaData,
-    Column,
-    Integer,
-    String,
-    Date,
-    ForeignKey,
-    event,
-)
-from sqlalchemy.orm import relationship, registry
+
+from sqlalchemy import (Column, Date, ForeignKey, Integer, MetaData, String,
+                        Table, event)
+from sqlalchemy.orm import registry, relationship
 
 from allocation.domain import model
 
