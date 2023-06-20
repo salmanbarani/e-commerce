@@ -13,14 +13,18 @@ def bootstrap(
     notifications: AbstractNotifications = None,
     publish: Callable = redis_eventpublisher.publish,
 ) -> messagebus.MessageBus:
+    """
+        Set initials to start the project and injects dependencies
+    """
 
     if notifications is None:
         notifications = EmailNotifications()
 
-    if start_orm:
+    if start_orm:  # False for testing wihout DB
         orm.start_mappers()
 
-    dependencies = {"uow": uow, "notifications": notifications, "publish": publish}
+    dependencies = {"uow": uow,
+                    "notifications": notifications, "publish": publish}
     injected_event_handlers = {
         event_type: [
             inject_dependencies(handler, dependencies) for handler in event_handlers

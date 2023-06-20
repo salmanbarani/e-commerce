@@ -6,6 +6,9 @@ from allocation import config
 
 
 class AbstractNotifications(abc.ABC):
+    """
+        This class must be used for any notification whether Email or SMS or Slack
+    """
     @abc.abstractmethod
     def send(self, destination, message):
         raise NotImplementedError

@@ -1,24 +1,28 @@
 from __future__ import annotations
-
 from dataclasses import dataclass
 from datetime import date
-from typing import List, Optional, Set
-
-from . import commands, events
+from typing import Optional, List, Set
+from . import events
 
 
 class Product:
+    """
+        Acts as an aggregate to access other Entities
+    """
+
     def __init__(self, sku: str, batches: List[Batch], version_number: int = 0):
         self.sku = sku
         self.batches = batches
         self.version_number = version_number
-        self.events = []  # type: List[events.Event]
+        self.events = []  # type of List[events.Event]
 
     def allocate(self, line: OrderLine) -> str:
         try:
-            batch = next(b for b in sorted(self.batches) if b.can_allocate(line))
+            batch = next(b for b in sorted(self.batches)
+                         if b.can_allocate(line))
             batch.allocate(line)
             self.version_number += 1
+            # Triggers Allocated event
             self.events.append(
                 events.Allocated(
                     orderid=line.orderid,
@@ -29,6 +33,7 @@ class Product:
             )
             return batch.reference
         except StopIteration:
+            # Triggers OutOfStock event
             self.events.append(events.OutOfStock(line.sku))
             return None
 
@@ -37,7 +42,9 @@ class Product:
         batch._purchased_quantity = qty
         while batch.available_quantity < 0:
             line = batch.deallocate_one()
-            self.events.append(events.Deallocated(line.orderid, line.sku, line.qty))
+            # Triggers deallocated event
+            self.events.append(events.Deallocated(
+                line.orderid, line.sku, line.qty))
 
 
 @dataclass(unsafe_hash=True)
@@ -53,7 +60,7 @@ class Batch:
         self.sku = sku
         self.eta = eta
         self._purchased_quantity = qty
-        self._allocations = set()  # type: Set[OrderLine]
+        self._allocations = set()  # type of Set[OrderLine]
 
     def __repr__(self):
         return f"<Batch {self.reference}>"

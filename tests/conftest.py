@@ -14,6 +14,7 @@ from tenacity import retry, stop_after_delay
 from allocation import config
 from allocation.adapters.orm import metadata, start_mappers
 
+# receive logs from other files other than tests
 pytest.register_assert_rewrite("tests.e2e.api_client")
 
 
@@ -54,7 +55,8 @@ def wait_for_redis_to_come_up():
 
 @pytest.fixture(scope="session")
 def postgres_db():
-    engine = create_engine(config.get_postgres_uri(), isolation_level="SERIALIZABLE")
+    engine = create_engine(config.get_postgres_uri(),
+                           isolation_level="SERIALIZABLE")
     wait_for_postgres_to_come_up(engine)
     metadata.create_all(engine)
     return engine
@@ -80,6 +82,7 @@ def restart_api():
 @pytest.fixture
 def restart_redis_pubsub():
     wait_for_redis_to_come_up()
+    # if the following command is None it means it's running from the container
     if not shutil.which("docker-compose"):
         print("skipping restart, assumes running in container")
         return

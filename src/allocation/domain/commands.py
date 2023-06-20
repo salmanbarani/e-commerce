@@ -5,6 +5,9 @@ from typing import Optional
 
 
 class Command:
+    """
+        All commands are used from ouside by any endpoint
+    """
     pass
 
 

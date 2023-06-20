@@ -12,6 +12,7 @@ r = redis.Redis(**config.get_redis_host_and_port())
 
 
 def main():
+    """Starting Redis pubsub system to listen to change_batch_quantity chanell"""
     logger.info("Redis pubsub starting")
     bus = bootstrap.bootstrap()
     pubsub = r.pubsub(ignore_subscribe_messages=True)

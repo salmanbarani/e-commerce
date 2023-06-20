@@ -3,6 +3,9 @@ from dataclasses import dataclass
 
 
 class Event:
+    """
+        All events are triggered manully by the system
+    """
     pass
 
 
