@@ -1,14 +1,16 @@
 # pylint: disable=no-self-use
 from __future__ import annotations
+
 from collections import defaultdict
 from datetime import date
 from typing import Dict, List
+
 import pytest
+
 from allocation import bootstrap
-from allocation.domain import commands
-from allocation.service_layer import handlers
 from allocation.adapters import notifications, repository
-from allocation.service_layer import unit_of_work
+from allocation.domain import commands
+from allocation.service_layer import handlers, unit_of_work
 
 
 class FakeRepository(repository.AbstractRepository):
